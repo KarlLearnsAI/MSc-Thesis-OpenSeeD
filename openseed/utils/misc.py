@@ -20,8 +20,7 @@ import torch.distributed as dist
 import torchvision
 from torch import Tensor
 
-from utils.constants import *
-
+from .constants import * # from utils.constants import *
 
 def _max_by_axis(the_list):
     # type: (List[List[int]]) -> List[int]

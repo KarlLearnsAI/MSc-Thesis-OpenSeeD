@@ -1,13 +1,24 @@
 #!/usr/bin/env bash
-# ------------------------------------------------------------------------------------------------
-# Deformable DETR
-# Copyright (c) 2020 SenseTime. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------------------------------
-# Modified from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
-# ------------------------------------------------------------------------------------------------
+# Build the Deformable DETR CUDA extension for OpenSeeD
+# using whatever conda env you’ve activated (vlmaps6 in this case).
 
-# Copyright (c) Facebook, Inc. and its affiliates.
-# Modified by Bowen Cheng from https://github.com/fundamentalvision/Deformable-DETR
+if [ -z "$CONDA_PREFIX" ]; then
+  echo "ERROR: CONDA_PREFIX is empty. Activate your vlmaps6 env first." >&2
+  exit 1
+fi
 
-python setup.py build install --user
+export CUDA_HOME="$CONDA_PREFIX"
+export PATH="$CUDA_HOME/bin:$PATH"
+
+NVCC="$(which nvcc)"
+if [ -z "$NVCC" ]; then
+  echo "ERROR: nvcc not found under \$CONDA_PREFIX/bin. Aborting." >&2
+  exit 1
+fi
+echo "Using nvcc at $NVCC (CUDA_HOME=$CUDA_HOME)"
+
+export PYTHONPATH="$(pwd)"
+
+python setup.py build_ext --inplace
+
+echo "✅ Built MultiScaleDeformableAttention with nvcc @ $NVCC"

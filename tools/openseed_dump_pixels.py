@@ -89,6 +89,33 @@ def pixel_features(model, img_path, long_edge=512):
     mask_feats = torch.nn.functional.normalize(mask_feats, dim=0)
     return mask_feats.cpu().numpy()          # (C,H,W)
 
+# ── new helper to accept an in-memory array ────────────────────────────────
+@torch.no_grad()
+def pixel_features_from_array(model, img_array: np.ndarray, long_edge: int = 512) -> np.ndarray:
+    """
+    Exactly like `pixel_features`, but takes a H×W×3 uint8 array instead of a file path.
+    Returns a (C,H,W) float32 array, L2-normalized across C.
+    """
+    # 1) Convert NumPy array (H,W,3, uint8) to PIL Image
+    pil_img = Image.fromarray(img_array.astype('uint8'), mode='RGB')
+    H, W = pil_img.height, pil_img.width
+
+    # 2) Resize & tensorize
+    x = Compose([Resize(long_edge, interpolation=Image.BICUBIC),
+                 ToTensor()])(pil_img) * 255
+    device = next(model.parameters()).device
+
+    # 3) Backbone + pixel decoder (exactly as before)
+    feats = model.model.backbone(x.to(device).unsqueeze(0))
+    out = model.model.sem_seg_head.pixel_decoder.forward_features(feats, masks=None)
+    mask_feats = out[0] if isinstance(out, (tuple, list)) else out
+
+    # 4) Upsample back to original H×W and L2-normalize
+    mask_feats = torch.nn.functional.interpolate(
+        mask_feats, size=(H, W), mode="bilinear", align_corners=False)[0]
+    mask_feats = torch.nn.functional.normalize(mask_feats, dim=0)
+    return mask_feats.cpu().numpy()           # (C,H,W)
+
 # ── CLI  ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
