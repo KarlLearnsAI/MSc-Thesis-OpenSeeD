@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""Extract ℓ2-normalised CLIP pixel embeddings from OpenSeeD checkpoints."""
+"""Extract ℓ2-normalised per-pixel embeddings from OpenSeeD checkpoints.
+
+The returned features have 512 channels compatible with CLIP text
+embeddings, obtained by projecting the model's 256‑D mask features.
+"""
 
 from __future__ import annotations
 
@@ -82,8 +86,12 @@ def pixel_features(model: BaseModel, img_path: str, long_edge: int = 512) -> np.
     mask_feats = torch.nn.functional.interpolate(
         mask_feats, size=(H, W), mode="bilinear", align_corners=False
     )[0]
+
+    # project from 256-dim mask space to CLIP space (512-dim)
+    proj = model.model.sem_seg_head.predictor.class_embed  # (256, 512)
+    mask_feats = proj.t().matmul(mask_feats.flatten(1)).view(512, H, W)
     mask_feats = torch.nn.functional.normalize(mask_feats, dim=0)
-    return mask_feats.cpu().numpy()  # (C, H, W)
+    return mask_feats.cpu().numpy()  # (512, H, W)
 
 
 @torch.no_grad()
@@ -104,12 +112,16 @@ def pixel_features_from_array(
     mask_feats = torch.nn.functional.interpolate(
         mask_feats, size=(H, W), mode="bilinear", align_corners=False
     )[0]
+
+    proj = model.model.sem_seg_head.predictor.class_embed  # (256, 512)
+    mask_feats = proj.t().matmul(mask_feats.flatten(1)).view(512, H, W)
     mask_feats = torch.nn.functional.normalize(mask_feats, dim=0)
     return mask_feats.cpu().numpy()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Dump per-pixel OpenSeeD features")
+    parser = argparse.ArgumentParser(
+        description="Dump 512‑D per-pixel OpenSeeD features")
     parser.add_argument("--cfg", default="configs/openseed/openseed_swinl_lang_decouple.yaml")
     parser.add_argument("--weight", default="weights/openseed_swinl_pano_sota.pt")
     parser.add_argument("--image", required=True, help="input image path")
