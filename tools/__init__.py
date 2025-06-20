@@ -3,3 +3,5 @@ from __future__ import division
 from __future__ import print_function
 
 from .architectures import build_model
+
+__all__ = ["build_model"]
