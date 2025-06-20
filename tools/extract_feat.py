@@ -1,3 +1,4 @@
+# teaching_material/msc/OpenSeeD/tools/extract_feat.py
 #!/usr/bin/env python
 
 # ─── make “import openseed” work without pip install ─────────────────────────

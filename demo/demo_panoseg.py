@@ -1,3 +1,4 @@
+# teaching_material/msc/OpenSeeD/demo/demo_panoseg.py
 # --------------------------------------------------------
 # X-Decoder -- Generalized Decoding for Pixel, Image, and Language
 # Copyright (c) 2022 Microsoft

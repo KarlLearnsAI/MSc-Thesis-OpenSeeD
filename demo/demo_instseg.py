@@ -1,3 +1,4 @@
+# teaching_material/msc/OpenSeeD/demo/demo_instseg.py
 import os
 import sys
 import logging
