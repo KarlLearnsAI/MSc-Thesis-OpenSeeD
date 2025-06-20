@@ -1,7 +1,7 @@
 # OpenSeed/tools/openseed_dump_text.py
 #!/usr/bin/env python
 """
-Dump ℓ2-normalised 256-D text embeddings (CLIP-512 → truncate).
+Dump ℓ2-normalised 512-D text embeddings.
 Accepts --cfg / --weight only for API compatibility.
 """
 
@@ -16,7 +16,7 @@ p.add_argument("--labels", required=True,
 p.add_argument("--out",    required=True)
 args = p.parse_args()
 
-# ---------- make 256-D text embeddings -------------------------
+# ---------- make 512-D text embeddings -------------------------
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, _ = clip.load("ViT-B/32", device=device)
 model.eval()
@@ -27,5 +27,5 @@ tok    = clip.tokenize(labels).to(device)
 with torch.no_grad():
     z = model.encode_text(tok)                         # (K,512)
     z = torch.nn.functional.normalize(z, dim=-1)       # ℓ2
-z = z[:, :256].cpu().numpy()                           # truncate → 256
+z = z.cpu().numpy()
 np.save(args.out, z)
