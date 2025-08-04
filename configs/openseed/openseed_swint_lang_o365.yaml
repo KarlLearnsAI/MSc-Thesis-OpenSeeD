@@ -34,7 +34,7 @@ MODEL:
     ARCH: encoder
     NAME: transformer
     TOKENIZER: clip
-    CONTEXT_LENGTH: 77 # 77
+    CONTEXT_LENGTH: 18 # 77
     WIDTH: 512
     HEADS: 8
     LAYERS: 12 # 6
