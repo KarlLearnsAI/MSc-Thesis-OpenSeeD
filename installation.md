@@ -10,15 +10,15 @@ This guide details how to set up OpenSeeD and run your first experiment. The ins
 
 ## 2. Clone the repository
 ```bash
-git clone https://github.com/IDEA-Research/OpenSeeD.git
-cd OpenSeeD
+git clone https://github.com/KarlLearnsAI/MSc-Thesis-OpenSeeD
+cd MSc-Thesis-OpenSeeD
 ```
 
 ## 3. Recreate the conda environment
 An `environment.yml` file is provided to reproduce the main dependencies and automatically download all required sub‑dependencies.
 ```bash
 conda env create -f environment.yml
-conda activate openseed
+conda activate vlmaps6
 ```
 
 ## 4. Download pre-trained checkpoint
